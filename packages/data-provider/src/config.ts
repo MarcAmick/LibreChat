@@ -2715,6 +2715,12 @@ export const outboundTimeoutsSchema = z.object({
   moderationMs: outboundTimeoutMs,
   /** Fetching a stored image by URL to encode it for a provider. */
   imageFetchMs: outboundTimeoutMs,
+  /** Each call a built-in tool makes to its API (weather, Wolfram, web search). */
+  toolsMs: outboundTimeoutMs,
+  /** Each text-to-speech or speech-to-text provider request. */
+  speechMs: outboundTimeoutMs,
+  /** Each Stable Diffusion image generation request. */
+  imageGenerationMs: outboundTimeoutMs,
 });
 
 /** Retention for the write-only GENERAL violation log kept per user. */
@@ -3179,6 +3185,11 @@ export const interfaceSchema = z
      *  default; a deployment that cannot use popups can turn it off and keep
      *  the docked pane. */
     artifactUndocking: z.boolean().optional(),
+    /** Asks each viewer for consent before Google Tag Manager (`ANALYTICS_GTM_ID`)
+     *  loads. A deployment that settles consent itself, such as an internal one
+     *  covered by its own policy, can set false to load the container without the
+     *  banner or the Settings toggle. */
+    analyticsConsent: z.boolean().optional(),
     feedback: z.boolean().optional(),
     currency: z
       .object({
@@ -3789,7 +3800,12 @@ export type TStartupConfig = {
 
 export type TSharedLinkStartupInterface = Pick<
   Partial<TInterfaceConfig>,
-  'privacyPolicy' | 'termsOfService' | 'codeHighlightThrottleMs' | 'theme' | 'artifactUndocking'
+  | 'privacyPolicy'
+  | 'termsOfService'
+  | 'codeHighlightThrottleMs'
+  | 'theme'
+  | 'artifactUndocking'
+  | 'analyticsConsent'
 >;
 
 export type TSharedLinkStartupConfig = Pick<TStartupConfig, 'appTitle'> &
@@ -5235,6 +5251,21 @@ export const AUTH_USER_DOC_BY_ID_PREFIX = 'auth-user-doc-byid';
 
 /** Lifetime of a cached auth user document, and so the longest a stale one can be served. */
 export const AUTH_USER_DOC_CACHE_TTL_MS = 5000;
+
+/**
+ * Longest a cached auth user document can live after its lookup began: the lookup may take one
+ * cache TTL before the write, and the document lives at most one more.
+ */
+export const AUTH_USER_DOC_MAX_AGE_MS = AUTH_USER_DOC_CACHE_TTL_MS * 2;
+
+/** Per-user marker an eviction leaves so a lookup that began before it cannot be cached or served. */
+export const AUTH_USER_DOC_EVICTED_PREFIX = 'auth-user-doc-evicted';
+
+/**
+ * Lifetime of that marker. A document is only cached when its lookup took at most one cache TTL
+ * and then lives one more, so any document read before an eviction expires within two TTLs of it.
+ */
+export const AUTH_USER_DOC_EVICTION_FENCE_TTL_MS = AUTH_USER_DOC_CACHE_TTL_MS * 3;
 
 /**
  * Enum for violation types, used to identify, log, and cache violations.

@@ -1,6 +1,13 @@
 import { memo, useRef, useMemo, useEffect, useCallback, useContext, Fragment } from 'react';
 import { useStore } from 'jotai';
 import { Constants, ContentTypes, Tools } from 'librechat-data-provider';
+import {
+  ReasoningDisclosureContext,
+  reasoningDisclosure,
+  ToolDisclosureContext,
+  ToolDisclosureKeyContext,
+  SoleToolContext,
+} from '@librechat/chat/react';
 import type {
   SubagentAttachmentFile,
   TMessageContentParts,
@@ -9,8 +16,8 @@ import type {
   TMessage,
   Agents,
 } from 'librechat-data-provider';
+import type { ReasoningDisclosures, ToolDisclosures } from '@librechat/chat/react';
 import type { ReactNode, ReactElement } from 'react';
-import type { ReasoningDisclosures, ToolDisclosures } from './disclosure';
 import type { NestedCall } from '~/components/Chat/Subagents/attachments';
 import type { ToolCallGroupExpansionState } from './ToolCallGroup';
 import type { ActivityPhaseSegment } from '~/utils/activityLabels';
@@ -31,13 +38,6 @@ import {
   filterAttachmentsForPart,
   groupSequentialToolCalls,
 } from '~/utils';
-import {
-  ReasoningDisclosureContext,
-  reasoningDisclosure,
-  ToolDisclosureContext,
-  ToolDisclosureKeyContext,
-  SoleToolContext,
-} from './disclosure';
 import {
   groupActivityPhases,
   lastCursorContentIdx,

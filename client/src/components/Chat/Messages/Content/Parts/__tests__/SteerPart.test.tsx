@@ -27,23 +27,19 @@ jest.mock('~/Providers', () => ({
   useFileMapContext: () => mockFileMap,
 }));
 
-jest.mock('~/components/Chat/Messages/ui/MessageTimestamp', () => ({
-  __esModule: true,
-  default: () => <time data-testid="steer-timestamp" />,
+jest.mock('@librechat/chat/components', () => ({
+  ...jest.requireActual('@librechat/chat/components'),
+  MessageTimestamp: () => <time data-testid="steer-timestamp" />,
+  FileContainer: ({ file, onClick }: { file: { filename?: string }; onClick?: () => void }) => (
+    <button type="button" data-testid="steer-file" onClick={onClick}>
+      {file.filename}
+    </button>
+  ),
 }));
 
 jest.mock('~/components/Chat/Messages/Content/MarkdownLite', () => ({
   __esModule: true,
   default: ({ content }: { content: string }) => <span>{content}</span>,
-}));
-
-jest.mock('~/components/Chat/Input/Files/FileContainer', () => ({
-  __esModule: true,
-  default: ({ file, onClick }: { file: { filename?: string }; onClick?: () => void }) => (
-    <button type="button" data-testid="steer-file" onClick={onClick}>
-      {file.filename}
-    </button>
-  ),
 }));
 
 jest.mock('~/components/Chat/Messages/Content/FilePreviewDialog', () => ({
